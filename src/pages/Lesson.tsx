@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -119,7 +120,7 @@ function Lesson() {
         );
 
       const response = await fetch(
-        "http://localhost:3001/api/generate-lesson",
+        `${API_URL}/api/generate-lessons`,
         {
           method: "POST",
 

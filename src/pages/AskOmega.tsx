@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -238,7 +239,7 @@ function AskOmega() {
 
     try {
       const response = await fetch(
-        "http://localhost:3001/api/ask",
+        `${API_URL}/api/ask`,
         {
           method: "POST",
 

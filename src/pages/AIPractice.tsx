@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Brain, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -95,8 +96,7 @@ function AIPractice() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:3001/api/generate-quiz",
+      const response = await fetch(`${API_URL}/api/generate-quiz`,
         {
           method: "POST",
 
