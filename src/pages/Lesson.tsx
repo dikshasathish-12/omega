@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { addLearningActivity } from "../utils/learningHistory";
+
 type StudentProfile = {
   name: string;
   grade: string;
@@ -120,7 +121,7 @@ function Lesson() {
         );
 
       const response = await fetch(
-        `${API_URL}/api/generate-lessons`,
+        `${API_URL}/api/generate-lesson`,
         {
           method: "POST",
 
@@ -158,16 +159,17 @@ function Lesson() {
       const generatedLesson =
         data.lesson || data;
 
+      if (
+        !generatedLesson ||
+        !generatedLesson.title
+      ) {
+        throw new Error(
+          "OMEGA returned an incomplete lesson."
+        );
+      }
+
       setLesson(generatedLesson);
 
-      /*
-       * IMPORTANT:
-       * Store the complete generated lesson.
-       *
-       * Ask OMEGA will use this information
-       * to understand exactly what the student
-       * is currently studying.
-       */
       localStorage.setItem(
         "currentLessonContext",
         JSON.stringify(generatedLesson)
@@ -212,26 +214,27 @@ function Lesson() {
   };
 
   const markComplete = () => {
-  const completedKey =
-    `lessonCompleted_${topic}`;
+    const completedKey =
+      `lessonCompleted_${topic}`;
 
-  localStorage.setItem(
-    completedKey,
-    "true"
-  );
+    localStorage.setItem(
+      completedKey,
+      "true"
+    );
 
-  addLearningActivity({
-    type: "lesson",
-    subject:
-      subject ||
-      profile?.selectedSubject ||
-      "General",
-    topic,
-    title: lesson?.title || topic,
-  });
+    addLearningActivity({
+      type: "lesson",
+      subject:
+        subject ||
+        profile?.selectedSubject ||
+        "General",
+      topic,
+      title: lesson?.title || topic,
+    });
 
-  setCompleted(true);
-};
+    setCompleted(true);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
