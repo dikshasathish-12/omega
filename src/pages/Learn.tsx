@@ -40,9 +40,7 @@ function Learn() {
 
   useEffect(() => {
     const saved =
-      localStorage.getItem(
-        "studentProfile"
-      );
+      localStorage.getItem("studentProfile");
 
     if (!saved) {
       return;
@@ -50,7 +48,6 @@ function Learn() {
 
     try {
       const data = JSON.parse(saved);
-
       setProfile(data);
     } catch (error) {
       console.error(
@@ -73,20 +70,19 @@ function Learn() {
         `${API_URL}/api/generate-lessons`,
         {
           method: "POST",
-
           headers: {
             "Content-Type": "application/json",
           },
-
           body: JSON.stringify({
             grade: profile.grade,
             subject: profile.selectedSubject,
+            previousTopics: [],
+            completedTopics: [],
           }),
         }
       );
 
-      const data =
-        await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
         throw new Error(
@@ -95,21 +91,33 @@ function Learn() {
         );
       }
 
+      if (
+        !data.lessons ||
+        !Array.isArray(data.lessons)
+      ) {
+        throw new Error(
+          "No lessons were generated."
+        );
+      }
+
       setLessons(data.lessons);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Generate lessons error:",
+        error
+      );
 
       setError(
-        "OMEGA could not generate lessons. Make sure the backend is running."
+        error instanceof Error
+          ? error.message
+          : "OMEGA could not generate lessons."
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const openLesson = (
-    lesson: Lesson
-  ) => {
+  const openLesson = (lesson: Lesson) => {
     localStorage.setItem(
       "selectedLearningSubject",
       profile?.selectedSubject || ""
@@ -127,7 +135,6 @@ function Learn() {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
         <div className="text-center">
-
           <BookOpen
             size={60}
             className="mx-auto text-indigo-400 mb-5"
@@ -149,7 +156,6 @@ function Learn() {
           >
             Go to Profile
           </button>
-
         </div>
       </div>
     );
@@ -157,7 +163,6 @@ function Learn() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white px-6 py-10">
-
       <div className="max-w-5xl mx-auto">
 
         {/* HEADER */}
@@ -171,7 +176,6 @@ function Learn() {
             </div>
 
             <div>
-
               <h1 className="text-3xl font-bold">
                 Learn
               </h1>
@@ -179,7 +183,6 @@ function Learn() {
               <p className="text-slate-400">
                 AI-powered personalized learning
               </p>
-
             </div>
 
           </div>
@@ -289,7 +292,6 @@ function Learn() {
         {/* LESSONS */}
 
         {lessons.length > 0 && (
-
           <div>
 
             <div className="flex items-center justify-between mb-5">
@@ -314,7 +316,6 @@ function Learn() {
 
               {lessons.map(
                 (lesson, index) => (
-
                   <div
                     key={`${lesson.title}-${index}`}
                     className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-indigo-500/50 transition"
@@ -357,9 +358,7 @@ function Learn() {
 
                       <button
                         onClick={() =>
-                          openLesson(
-                            lesson
-                          )
+                          openLesson(lesson)
                         }
                         className="px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold"
                       >
@@ -369,18 +368,15 @@ function Learn() {
                     </div>
 
                   </div>
-
                 )
               )}
 
             </div>
 
           </div>
-
         )}
 
       </div>
-
     </div>
   );
 }
