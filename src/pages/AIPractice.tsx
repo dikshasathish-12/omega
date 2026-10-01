@@ -128,15 +128,17 @@ function AIPractice() {
         );
       }
 
-      if (
-        !data.questions ||
-        !Array.isArray(data.questions) ||
-        data.questions.length === 0
-      ) {
-        throw new Error(
-          "No questions were generated."
-        );
-      }
+     if (
+  !data.quiz ||
+  !Array.isArray(data.quiz) ||
+  data.quiz.length === 0
+) {
+  throw new Error(
+    data.error || "No questions were generated."
+  );
+}
+
+setQuestions(data.quiz); 
 
       setQuestions(data.questions);
 
