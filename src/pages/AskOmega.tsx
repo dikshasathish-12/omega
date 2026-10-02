@@ -21,56 +21,50 @@ type Message = {
   content: string;
 };
 
+/*
+==================================================
+CLEAN OMEGA AI RESPONSE
+==================================================
+*/
+
 function cleanOmegaResponse(text: string) {
   if (!text) return "";
 
   let cleaned = text;
 
   // Remove code blocks
-  cleaned = cleaned.replace(/```[\s\S]*?```/g, (match) => {
-    return match
-      .replace(/```[a-zA-Z0-9_-]*/g, "")
-      .replace(/```/g, "")
-      .trim();
-  });
+  cleaned = cleaned.replace(/```[\s\S]*?```/g, "");
 
   // Remove bold Markdown
-  cleaned = cleaned.replace(/\*\*(.*?)\*\*/gs, "$1");
+  cleaned = cleaned.replace(/\*\*/g, "");
 
-  // Remove italic Markdown
-  cleaned = cleaned.replace(/\*(.*?)\*/gs, "$1");
+  // Remove headings
+  cleaned = cleaned.replace(/^#{1,6}\s*/gm, "");
 
-  // Remove underscore formatting
-  cleaned = cleaned.replace(/__(.*?)__/gs, "$1");
-  cleaned = cleaned.replace(/_(.*?)_/gs, "$1");
+  // Remove inline code backticks
+  cleaned = cleaned.replace(/`/g, "");
 
-  // Remove inline code formatting
-  cleaned = cleaned.replace(/`([^`]*)`/g, "$1");
-
-  // Remove Markdown headings
-  cleaned = cleaned.replace(/^[ \t]*#{1,6}[ \t]*/gm, "");
-
-  // Remove bullet points
+  // Remove bullet symbols at the beginning of lines
   cleaned = cleaned.replace(
-    /^[ \t]*[-*•▪◦●][ \t]+/gm,
+    /^\s*[-*•▪◦●]\s+/gm,
     ""
   );
 
-  // Remove numbered Markdown formatting
+  // Remove numbered list formatting
   cleaned = cleaned.replace(
-    /^[ \t]*\d+[.)][ \t]+/gm,
+    /^\s*\d+[.)]\s+/gm,
     ""
   );
 
-  // Remove blockquote formatting
+  // Remove blockquote symbols
   cleaned = cleaned.replace(
-    /^[ \t]*>[ \t]?/gm,
+    /^\s*>\s?/gm,
     ""
   );
 
   // Remove horizontal lines
   cleaned = cleaned.replace(
-    /^[ \t]*([-*_]){3,}[ \t]*$/gm,
+    /^\s*[-_*]{3,}\s*$/gm,
     ""
   );
 
@@ -80,14 +74,17 @@ function cleanOmegaResponse(text: string) {
     ""
   );
 
-  // Remove tilde formatting
+  // Remove remaining Markdown formatting characters
+  cleaned = cleaned.replace(/\*/g, "");
+  cleaned = cleaned.replace(/_/g, "");
   cleaned = cleaned.replace(/~+/g, "");
-
-  // Remove caret formatting
   cleaned = cleaned.replace(/\^+/g, "");
 
   // Remove excessive spaces
   cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
+
+  // Remove spaces at the beginning of lines
+  cleaned = cleaned.replace(/^[ \t]+/gm, "");
 
   // Remove excessive empty lines
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
@@ -95,13 +92,20 @@ function cleanOmegaResponse(text: string) {
   return cleaned.trim();
 }
 
+/*
+==================================================
+ASK OMEGA
+==================================================
+*/
+
 function Ask() {
   const navigate = useNavigate();
 
   const [profile, setProfile] =
     useState<StudentProfile | null>(null);
 
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] =
+    useState("");
 
   const [messages, setMessages] =
     useState<Message[]>([]);
@@ -114,6 +118,12 @@ function Ask() {
 
   const [error, setError] =
     useState("");
+
+  /*
+  ================================================
+  LOAD PROFILE, TOPIC AND SAVED CHAT
+  ================================================
+  */
 
   useEffect(() => {
     const savedProfile =
@@ -157,6 +167,7 @@ function Ask() {
             parsedConversation.map(
               (message: Message) => ({
                 ...message,
+
                 content:
                   message.role === "assistant"
                     ? cleanOmegaResponse(
@@ -166,7 +177,9 @@ function Ask() {
               })
             );
 
-          setMessages(cleanedConversation);
+          setMessages(
+            cleanedConversation
+          );
         }
       } catch (err) {
         console.error(
@@ -177,12 +190,24 @@ function Ask() {
     }
   }, []);
 
+  /*
+  ================================================
+  SAVE CHAT
+  ================================================
+  */
+
   useEffect(() => {
     localStorage.setItem(
       "omegaConversation",
       JSON.stringify(messages)
     );
   }, [messages]);
+
+  /*
+  ================================================
+  ASK OMEGA
+  ================================================
+  */
 
   const askOmega = async () => {
     const trimmedQuestion =
@@ -285,6 +310,12 @@ function Ask() {
     }
   };
 
+  /*
+  ================================================
+  ENTER KEY
+  ================================================
+  */
+
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLTextAreaElement>
   ) => {
@@ -297,6 +328,12 @@ function Ask() {
     }
   };
 
+  /*
+  ================================================
+  CLEAR CHAT
+  ================================================
+  */
+
   const clearConversation = () => {
     setMessages([]);
 
@@ -305,10 +342,17 @@ function Ask() {
     );
   };
 
+  /*
+  ================================================
+  UI
+  ================================================
+  */
+
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
 
       {/* Header */}
+
       <header className="border-b border-white/10 bg-slate-950/95">
 
         <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
@@ -324,13 +368,16 @@ function Ask() {
           <div className="flex items-center gap-3">
 
             <div className="w-11 h-11 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+
               <Bot
                 size={24}
                 className="text-indigo-400"
               />
+
             </div>
 
             <div>
+
               <h1 className="text-xl font-bold">
                 OMEGA AI Tutor
               </h1>
@@ -338,6 +385,7 @@ function Ask() {
               <p className="text-sm text-slate-400">
                 Ask questions about what you are learning
               </p>
+
             </div>
 
           </div>
@@ -354,6 +402,7 @@ function Ask() {
       </header>
 
       {/* Chat */}
+
       <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-8">
 
         {topic && (
@@ -372,15 +421,18 @@ function Ask() {
 
         <div className="space-y-6">
 
-          {/* Welcome message */}
+          {/* Welcome */}
+
           {messages.length === 0 && (
             <div className="flex gap-4">
 
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
+
                 <Bot
                   size={22}
                   className="text-indigo-400"
                 />
+
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 max-w-3xl">
@@ -399,6 +451,7 @@ function Ask() {
           )}
 
           {/* Messages */}
+
           {messages.map(
             (message, index) => (
               <div
@@ -413,10 +466,12 @@ function Ask() {
                 {message.role ===
                   "assistant" && (
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
+
                     <Bot
                       size={22}
                       className="text-indigo-400"
                     />
+
                   </div>
                 )}
 
@@ -427,18 +482,26 @@ function Ask() {
                       : "bg-white/5 border border-white/10 text-slate-200"
                   }`}
                 >
+
                   <div className="whitespace-pre-line leading-7">
-                    {message.content}
+
+                    {cleanOmegaResponse(
+                      message.content
+                    )}
+
                   </div>
+
                 </div>
 
                 {message.role ===
                   "user" && (
                   <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center shrink-0">
+
                     <User
                       size={20}
                       className="text-slate-300"
                     />
+
                   </div>
                 )}
 
@@ -447,14 +510,17 @@ function Ask() {
           )}
 
           {/* Loading */}
+
           {loading && (
             <div className="flex gap-4">
 
               <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
+
                 <Bot
                   size={22}
                   className="text-indigo-400"
                 />
+
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
@@ -478,6 +544,7 @@ function Ask() {
           )}
 
           {/* Error */}
+
           {error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-red-300">
               {error}
@@ -489,6 +556,7 @@ function Ask() {
       </main>
 
       {/* Input */}
+
       <div className="border-t border-white/10 bg-slate-950">
 
         <div className="max-w-5xl mx-auto px-6 py-5">
@@ -515,6 +583,7 @@ function Ask() {
               }
               className="h-12 px-5 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center gap-2 font-semibold"
             >
+
               {loading ? (
                 <Loader2
                   size={20}
@@ -525,6 +594,7 @@ function Ask() {
               )}
 
               Ask
+
             </button>
 
           </div>
