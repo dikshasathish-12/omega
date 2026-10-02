@@ -23,7 +23,7 @@ type Message = {
 
 /*
 ==================================================
-CLEAN OMEGA AI RESPONSE
+CLEAN OMEGA RESPONSE
 ==================================================
 */
 
@@ -35,16 +35,58 @@ function cleanOmegaResponse(text: string) {
   // Remove code blocks
   cleaned = cleaned.replace(/```[\s\S]*?```/g, "");
 
-  // Remove bold Markdown
+  // Convert LaTeX fractions
+  // \frac{a}{b} -> a/b
+  cleaned = cleaned.replace(
+    /\\frac\{([^{}]*)\}\{([^{}]*)\}/g,
+    "$1/$2"
+  );
+
+  // Convert common LaTeX text commands
+  cleaned = cleaned.replace(
+    /\\text\{([^{}]*)\}/g,
+    "$1"
+  );
+
+  cleaned = cleaned.replace(
+    /\\mathrm\{([^{}]*)\}/g,
+    "$1"
+  );
+
+  cleaned = cleaned.replace(
+    /\\mathbf\{([^{}]*)\}/g,
+    "$1"
+  );
+
+  // Convert common LaTeX mathematical symbols
+  cleaned = cleaned.replace(/\\times/g, "×");
+  cleaned = cleaned.replace(/\\div/g, "÷");
+  cleaned = cleaned.replace(/\\pm/g, "±");
+  cleaned = cleaned.replace(/\\cdot/g, "·");
+
+  // Convert square root
+  cleaned = cleaned.replace(
+    /\\sqrt\{([^{}]*)\}/g,
+    "√($1)"
+  );
+
+  // Remove LaTeX math delimiters
+  cleaned = cleaned.replace(/\$\$/g, "");
+  cleaned = cleaned.replace(/\$/g, "");
+
+  // Remove Markdown bold
   cleaned = cleaned.replace(/\*\*/g, "");
 
-  // Remove headings
-  cleaned = cleaned.replace(/^#{1,6}\s*/gm, "");
+  // Remove Markdown headings
+  cleaned = cleaned.replace(
+    /^#{1,6}\s*/gm,
+    ""
+  );
 
-  // Remove inline code backticks
+  // Remove backticks
   cleaned = cleaned.replace(/`/g, "");
 
-  // Remove bullet symbols at the beginning of lines
+  // Remove bullet points
   cleaned = cleaned.replace(
     /^\s*[-*•▪◦●]\s+/gm,
     ""
@@ -74,20 +116,29 @@ function cleanOmegaResponse(text: string) {
     ""
   );
 
-  // Remove remaining Markdown formatting characters
+  // Remove remaining Markdown formatting
   cleaned = cleaned.replace(/\*/g, "");
   cleaned = cleaned.replace(/_/g, "");
   cleaned = cleaned.replace(/~+/g, "");
   cleaned = cleaned.replace(/\^+/g, "");
 
-  // Remove excessive spaces
-  cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
+  // Remove remaining LaTeX commands
+  cleaned = cleaned.replace(
+    /\\([a-zA-Z]+)/g,
+    "$1"
+  );
 
-  // Remove spaces at the beginning of lines
-  cleaned = cleaned.replace(/^[ \t]+/gm, "");
+  // Clean excessive spaces
+  cleaned = cleaned.replace(
+    /[ \t]{2,}/g,
+    " "
+  );
 
-  // Remove excessive empty lines
-  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+  // Clean excessive blank lines
+  cleaned = cleaned.replace(
+    /\n{3,}/g,
+    "\n\n"
+  );
 
   return cleaned.trim();
 }
@@ -121,7 +172,7 @@ function Ask() {
 
   /*
   ================================================
-  LOAD PROFILE, TOPIC AND SAVED CHAT
+  LOAD PROFILE, TOPIC AND CHAT
   ================================================
   */
 
@@ -344,7 +395,7 @@ function Ask() {
 
   /*
   ================================================
-  UI
+  PAGE
   ================================================
   */
 
@@ -421,7 +472,7 @@ function Ask() {
 
         <div className="space-y-6">
 
-          {/* Welcome */}
+          {/* Welcome message */}
 
           {messages.length === 0 && (
             <div className="flex gap-4">
