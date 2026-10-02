@@ -344,7 +344,7 @@ function AIPractice() {
 
             <button
               onClick={() =>
-                navigate("/dashboard")
+                navigate("/")
               }
               className="flex items-center gap-2 text-slate-300 hover:text-white transition"
             >
@@ -431,7 +431,7 @@ function AIPractice() {
 
               <button
                 onClick={() =>
-                  navigate("/dashboard")
+                  navigate("/")
                 }
                 className="px-6 py-3 rounded-xl bg-white/10 hover:bg-white/15 transition font-semibold"
               >
@@ -464,7 +464,7 @@ function AIPractice() {
 
             <button
               onClick={() =>
-                navigate("/dashboard")
+                navigate("/")
               }
               className="flex items-center gap-2 text-slate-300 hover:text-white transition"
             >
@@ -622,7 +622,7 @@ function AIPractice() {
 
           <button
             onClick={() =>
-              navigate("/dashboard")
+              navigate("/")
             }
             className="flex items-center gap-2 text-slate-300 hover:text-white transition"
           >
