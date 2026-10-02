@@ -5,6 +5,7 @@ import {
   GraduationCap,
   Save,
   Check,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -179,9 +180,59 @@ function Profile() {
     setSaved(true);
   };
 
+  // Delete profile
+  const handleDeleteProfile = () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your profile? This will also delete your learning history, quiz results, and completed lessons."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    // Delete profile
+    localStorage.removeItem("studentProfile");
+
+    // Delete learning history
+    localStorage.removeItem("omegaLearningHistory");
+
+    // Delete quiz-related data
+    localStorage.removeItem("lastQuizResult");
+    localStorage.removeItem("quizAttempts");
+
+    // Delete learning selections
+    localStorage.removeItem("selectedLearningSubject");
+    localStorage.removeItem("selectedLearningTopic");
+
+    // Delete other known progress data
+    localStorage.removeItem("quadraticEquationsCompleted");
+
+    // Delete completed lesson records
+    Object.keys(localStorage).forEach((key) => {
+      if (
+        key.startsWith("lessonCompleted_") ||
+        key.startsWith("topicCompleted_")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    // Reset profile state
+    setProfile({
+      name: "",
+      grade: "Grade 6",
+      subjects: gradeSubjects["Grade 6"],
+      selectedSubject: "Mathematics",
+    });
+
+    setSaved(false);
+
+    // Go back to dashboard
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white px-6 py-10">
-
       <div className="max-w-4xl mx-auto">
 
         {/* HEADER */}
@@ -360,6 +411,7 @@ function Profile() {
           {/* SUCCESS MESSAGE */}
           {saved && (
             <div className="mt-4 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+
               <p className="text-emerald-400 font-medium">
                 ✓ Profile saved successfully
               </p>
@@ -367,8 +419,34 @@ function Profile() {
               <p className="text-sm text-slate-400 mt-1">
                 {profile.grade} • {profile.selectedSubject}
               </p>
+
             </div>
           )}
+
+          {/* DELETE PROFILE */}
+          <div className="mt-8 pt-6 border-t border-white/10">
+
+            <h2 className="text-lg font-semibold text-white mb-2">
+              Delete Profile
+            </h2>
+
+            <p className="text-sm text-slate-400 mb-4">
+              Delete your profile and all learning data stored on this device.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleDeleteProfile}
+              className="w-full py-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500/20 font-semibold flex items-center justify-center gap-2 transition"
+            >
+
+              <Trash2 size={20} />
+
+              Delete Profile
+
+            </button>
+
+          </div>
 
         </div>
       </div>
